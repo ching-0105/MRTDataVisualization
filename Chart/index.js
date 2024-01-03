@@ -9,10 +9,15 @@ Promise.all([
   // dataArray是一個包含三個資料集的陣列，分別對應三個 CSV 檔案的資料
   const csv_day = dataArray[0];
   const csv_month = dataArray[1];
-  var mergedData = csv_day.concat(csv_month);
-  console.log('mergedData', mergedData)
+
   console.log('csv_day', csv_day)
   console.log('csv_month', csv_month)
+
+  // Used variables
+  var mergedData = csv_day.concat(csv_month);
+  var select_value = "2023-11-30";
+  var ranking_num = 10;
+
   function process_row(d){
     // 用底線串起enter_station和leave_station
     d.stations = d.enter_station + "_" + d.leave_station;
@@ -44,15 +49,13 @@ Promise.all([
   const xAxis = svg.append("g")
     .attr("transform", `translate(0, ${height})`);
     
-
   // Y axis
   const y = d3.scaleBand()
     .range([ 0, height ])
     .padding(.1);
   const yAxis = svg.append("g");
 
-  
-  function data_filter(originData, selected){
+  function data_filter(originData, selected, num){
     // selected = "2023-11-04"
     // 使用 filter 方法選擇相應的資料行
     let filteredData = originData.filter(function(row) {
@@ -60,10 +63,14 @@ Promise.all([
       return row.date === selected;
     });
     
-    filteredData = filteredData.slice(0, 10);
+    filteredData = filteredData.slice(0, num);
     console.log('selected', selected);
+    console.log('select_value', select_value);
     console.log('filteredData', filteredData);
+    
     update_ranking(filteredData);
+
+    return selected;
   }
 
   function update_ranking(renderData){
@@ -79,20 +86,56 @@ Promise.all([
     
     y.domain(renderData.map(d => d.stations));
     yAxis.transition().duration(1000).call(d3.axisLeft(y));
-    
+
+    // create tooltip element  
+    const tooltip = d3.select("body")
+      .append("div")
+      .attr("class","d3-tooltip")
+      .style("position", "absolute")
+      .style("z-index", "10")
+      .style("visibility", "hidden")
+      .style("padding", "15px")
+      .style("background", "rgba(0,0,0,0.6)")
+      .style("border-radius", "5px")
+      .style("color", "#fff")
+      .text("a simple tooltip");
+
     // variable u: map data to existing bars
     var u = svg.selectAll("rect")
       .data(renderData)
 
     // update bars
-    u.join("rect")
-      .transition()
+    var uRect = u.join("rect")
+
+    uRect.transition()
       .duration(1000)
         .attr("x", x(0))
         .attr("y", d => y(d.stations))
         .attr("width", d => x(d.sum_counts))
         .attr("height", y.bandwidth())
         .attr("fill", "#69b3a2")
+    
+    uRect.attr("class", "rankBar")
+      .on("mouseover", function(event, d) {
+        // console.log(d);
+        tooltip.html(`Station ${d.enter_station} to ${d.leave_station}, Sum counts: ${d.sum_counts}`).style("visibility", "visible");
+
+        d3.selectAll(".rankBar").style("opacity", .2);
+        d3.select(this)
+          .style("stroke", "black")
+          .style("opacity", 1);
+      })
+      .on("mousemove", function(){
+        tooltip
+          .style("top", (event.pageY-10)+"px")
+          .style("left",(event.pageX+10)+"px");
+      })
+      .on("mouseout", function() {
+        tooltip.html(``).style("visibility", "hidden");
+        d3.selectAll(".rankBar").style("opacity", 1).style("stroke", "none");
+      });
+    
+        
   }
 
   function createDropdownMenu(containerId, options) {
@@ -153,12 +196,14 @@ Promise.all([
     // 當日期改變時，在控制台中輸出選擇的日期
     datePicker.addEventListener("change", function() {
         console.log("選擇的日期是：", this.value);
-        data_filter(mergedData, this.value)
+        select_value = this.value;
+        data_filter(mergedData, select_value, ranking_num);
     });
   
     PickerContainer.appendChild(datePicker);
     document.body.appendChild(PickerContainer);
-    data_filter(mergedData, datePicker.value);
+    select_value = datePicker.value;
+    data_filter(mergedData, select_value, ranking_num);
   }
 
   // 清除已經存在的日期選擇器
@@ -168,11 +213,35 @@ Promise.all([
         existingPicker.parentNode.removeChild(existingPicker);
     }
   }
+
+  // 創建數字輸入的函數
+  function createNumberInput(containerId, minValue, maxValue, defaultValue) {
+    // 選擇容器元素
+    const container = d3.select(`#${containerId}`);
+
+    // 創建輸入框
+    const input = container.append("input")
+      .attr("type", "number")
+      .attr("min", minValue)
+      .attr("max", maxValue)
+      .attr("value", defaultValue)
+      .attr("id", "nUni");
+
+    // 在這裡可以添加額外的邏輯，如事件監聽器等
+    input.on("change", function() {
+      console.log("數字變更為：", this.value);
+      ranking_num = this.value;
+      data_filter(mergedData, select_value, ranking_num);
+    });
+  }
+
+  // 使用範例
+  createNumberInput("dropdown-container", 1, 50, 10);
   
   // 在容器 ID 為 "dropdown-container" 的地方創建下拉式選單
   createDropdownMenu("dropdown-container", dropdownOptions);
 
-  data_filter(mergedData, "2023-11-30");
+  data_filter(mergedData, select_value, ranking_num);
   addPicker("date");
 })
 
