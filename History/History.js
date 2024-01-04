@@ -2,7 +2,7 @@
 export function HistoryWindow(selctedStation,data){
     var containerDiv = d3.select("#History_dataviz");
         containerDiv.style("width", "800px");
-        containerDiv.style("height", "600px");
+        containerDiv.style("height", "500px");
 
     // console.log("get data")
     // d3.csv("../Dataset/bigdata.csv").then( function(data) {
@@ -110,6 +110,7 @@ export function HistoryWindow(selctedStation,data){
             if(!updated) updateChart(data, selctedStation);
         }
         else{
+            console.log("113")
             var yearpicker = calendarDiv.append("input")
                 .attr("id", "yearpicker")
             
@@ -181,7 +182,7 @@ export function HistoryWindow(selctedStation,data){
             renderLineChartMonth(getDailySum(filteredData), selctedStation)
         }
         else{
-            var selectedYear = $("#yearpicker").yearpicker("getValue");
+            // var selectedYear = $("#yearpicker").yearpicker("getValue");
             console.log("選取的year是: ", selectedYear);
             var filteredData = originalData.filter(function(d) {
                 // 使用選擇的年份進行篩選
@@ -191,39 +192,40 @@ export function HistoryWindow(selctedStation,data){
             renderLineChartYear(getMonthSum(filteredData), selctedStation)
         }
     }
-    // create a tooltip
-    var Tooltip = d3.select("body")
-        .append("div")
-        .style("position", "absolute")
-        .style("z-index", "10")
-        .style("visibility", "hidden")
-        .attr("class", "tooltip")
-        .style("background-color", "white")
-        .style("border", "solid")
-        .style("border-width", "2px")
-        .style("border-radius", "5px")
-        .style("padding", "5px")
-    // Three function that change the tooltip when user hover / move / leave a cell
-    var mouseoverE = function(event,d) {
-        Tooltip
-            .html("Enter num: " + d.EnterNum).style("visibility", "visible")
-            .style("opacity", 1)
-    }
-    var mouseoverL = function(event,d) {
-        Tooltip
-            .html("Leave num: " + d.LeaveNum).style("visibility", "visible")
-            .style("opacity", 1)
-    }
-    var mousemove = function(event,d) {
-        Tooltip
-            .style("left", `${event.pageX+10}px`)
-            .style("top", `${event.pageY}px`)
-    }
-    var mouseleave = function(event,d) {
-        Tooltip
-            .style("opacity", 0)
-            .html(``).style("visibility", "hidden");
-    }
+    // // create a tooltip
+    // var Tooltip = d3.select("body")
+    //     .append("div")
+    //     .style("position", "absolute")
+    //     .style("z-index", "10")
+    //     .style("visibility", "hidden")
+    //     .attr("class", "tooltip")
+    //     .style("background-color", "white")
+    //     .style("border", "solid")
+    //     .style("border-width", "2px")
+    //     .style("border-radius", "5px")
+    //     .style("padding", "5px")
+    // //Three function that change the tooltip when user hover / move / leave a cell
+    // var mouseoverE = function(event,d) {
+    //     console.log('mouseoverE')
+    //     Tooltip
+    //         .html("進站人數: " + d.EnterNum).style("visibility", "visible")
+    //         .style("opacity", 1)
+    // }
+    // var mouseoverL = function(event,d) {
+    //     Tooltip
+    //         .html("出站人數: " + d.LeaveNum).style("visibility", "visible")
+    //         .style("opacity", 1)
+    // }
+    // var mousemove = function(event,d) {
+    //     Tooltip
+    //         .style("left", `${event.pageX+10}px`)
+    //         .style("top", `${event.pageY}px`)
+    // }
+    // var mouseleave = function(event,d) {
+    //     Tooltip
+    //         .style("opacity", 0)
+    //         .html(``).style("visibility", "hidden");
+    // }
 
     function createLegend(selctedStation) {
         var legend = chartSvg.append("g")
@@ -232,35 +234,68 @@ export function HistoryWindow(selctedStation,data){
         legend.append("text")
             .attr("x", 0)
             .attr("y", 0)
-            .style("text-anchor", "start")
+            .style("text-anchor", "end")
             .style("font-size", "1.1em")
             .style("fill", "black")
             .style("font-family", "Arial, sans-serif")
             .text(selctedStation);
 
-        legend.append("circle").attr("cx",-20).attr("cy",20).attr("r", 6).style("fill", "#8E6C8A")
+        legend.append("circle").attr("cx",-70).attr("cy",20).attr("r", 6).style("fill", "#8E6C8A")
         legend.append("text")
             .attr("x", 0)
             .attr("y", 20)
-            .text("EnterNum")
+            .text("進站人數")
             .style("font-size", "0.9em")
-            .style("text-anchor", "start")
+            .style("text-anchor", "end")
             .style("font-family", "Arial, sans-serif")
             .style("fill", "#8E6C8A")
             .attr("alignment-baseline","middle")
-        legend.append("circle").attr("cx",-20).attr("cy",40).attr("r", 6).style("fill", "#69b3a2")
+        legend.append("circle").attr("cx",-70).attr("cy",40).attr("r", 6).style("fill", "#69b3a2")
         legend.append("text")
             .attr("x", 0)
             .attr("y", 40)
-            .text("LeaveNum")
+            .text("出站人數")
             .style("font-size", "0.9em")
-            .style("text-anchor", "start")
+            .style("text-anchor", "end")
             .style("font-family", "Arial, sans-serif")
             .style("fill", "#69b3a2")
             .attr("alignment-baseline","middle")
     }
     function renderLineChartYear(data, selctedStation) {
-        // console.log("render",data)
+        // create a tooltip
+        var Tooltip = d3.select("body")
+            .append("div")
+            .attr("class","d3-tooltip")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .style("padding", "15px")
+            .style("background", "rgba(0,0,0,0.6)")
+            .style("border-radius", "5px")
+            .style("color", "#fff")
+            .text("a simple tooltip");
+        // Three function that change the tooltip when user hover / move / leave a cell
+        var mouseoverE = function(event,d) {
+            console.log('mouseoverE')
+            Tooltip
+                .html("進站人數: " + d.EnterNum).style("visibility", "visible")
+                .style("opacity", 1)
+        }
+        var mouseoverL = function(event,d) {
+            Tooltip
+                .html("出站人數: " + d.LeaveNum).style("visibility", "visible")
+                .style("opacity", 1)
+        }
+        var mousemove = function(event,d) {
+            Tooltip
+                .style("left", `${event.pageX+10}px`)
+                .style("top", `${event.pageY}px`)
+        }
+        var mouseleave = function(event,d) {
+            Tooltip
+                .style("opacity", 0)
+                .html(``).style("visibility", "hidden");
+        }
         
         // 創建 x 軸和 y 軸的比例尺
         var xScale = d3.scaleLinear()
@@ -337,6 +372,39 @@ export function HistoryWindow(selctedStation,data){
     }
     function renderLineChartMonth(data, selctedStation) {
         // console.log("render",data)
+        var Tooltip = d3.select("body")
+            .append("div")
+            .attr("class","d3-tooltip")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .style("padding", "15px")
+            .style("background", "rgba(0,0,0,0.6)")
+            .style("border-radius", "5px")
+            .style("color", "#fff")
+            .text("a simple tooltip");
+        // Three function that change the tooltip when user hover / move / leave a cell
+        var mouseoverE = function(event,d) {
+            console.log('mouseoverE')
+            Tooltip
+                .html("進站人數: " + d.EnterNum).style("visibility", "visible")
+                .style("opacity", 1)
+        }
+        var mouseoverL = function(event,d) {
+            Tooltip
+                .html("出站人數: " + d.LeaveNum).style("visibility", "visible")
+                .style("opacity", 1)
+        }
+        var mousemove = function(event,d) {
+            Tooltip
+                .style("left", `${event.pageX+10}px`)
+                .style("top", `${event.pageY}px`)
+        }
+        var mouseleave = function(event,d) {
+            Tooltip
+                .style("opacity", 0)
+                .html(``).style("visibility", "hidden");
+        }
 
         // 創建 x 軸和 y 軸的比例尺
         var xScale = d3.scaleLinear()
@@ -412,7 +480,40 @@ export function HistoryWindow(selctedStation,data){
         createLegend(selctedStation)
     }
     function renderLineChartDay(data, selctedStation) {
-        
+        var Tooltip = d3.select("body")
+            .append("div")
+            .attr("class","d3-tooltip")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .style("padding", "15px")
+            .style("background", "rgba(0,0,0,0.6)")
+            .style("border-radius", "5px")
+            .style("color", "#fff")
+            .text("a simple tooltip");
+        //Three function that change the tooltip when user hover / move / leave a cell
+        var mouseoverE = function(event,d) {
+            console.log('mouseoverE')
+            Tooltip
+                .html("進站人數: " + d.EnterNum).style("visibility", "visible")
+                .style("opacity", 1)
+        }
+        var mouseoverL = function(event,d) {
+            Tooltip
+                .html("出站人數: " + d.LeaveNum).style("visibility", "visible")
+                .style("opacity", 1)
+        }
+        var mousemove = function(event,d) {
+            Tooltip
+                .style("left", `${event.pageX+10}px`)
+                .style("top", `${event.pageY}px`)
+        }
+        var mouseleave = function(event,d) {
+            Tooltip
+                .style("opacity", 0)
+                .html(``).style("visibility", "hidden");
+        }
+
         data.forEach(function (d) {
             d.hour = d.DateTime.getHours();
             d.EnterNum = +d.EnterNum;
