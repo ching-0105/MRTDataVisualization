@@ -10,10 +10,13 @@ var filtered_date_data, filtered_hour_data
 var red_line, blue_line, orange_line1, orange_line2, green_line, yellow_line, brown_line
 var cur_hour, clicked_station
 var data_for_history
+// var calendarDiv
 const svg = d3.select("#map").append("svg")
     .attr("width", 1000)
     .attr("height", 1500);
-
+// calendarDiv = d3.select("#map").append("div")
+// .attr("id", "calendarDiv")
+// .style("display", "inline-block");
 d3.csv("../Dataset/bigdata.csv").then(function(dataset) {
     var data = dataset.map(d => {
         return {
@@ -35,7 +38,7 @@ d3.csv("../Dataset/bigdata.csv").then(function(dataset) {
     // data_for_history.forEach(function (d) {
     //     d.DateTime = new Date(d.DateTime);
     // });
-
+    // updateSelector();
     red_line = get_red_line_stations()
     blue_line = get_blue_line_stations()
     orange_line1 = get_orange_line1_stations()
@@ -114,6 +117,10 @@ function draw_mrt_line(stations, lineId, color, opacity){
 
     // 點擊站點時觸發的函數
     function handleStationClick(event, d) {
+        d3.select(this)
+        .transition()
+        .duration(100)
+        .attr("r", d.value)  // 恢復原始大小
         // clicked_station = d.name
         clearHistory();
         HistoryWindow(d.name, data_for_history)
@@ -306,14 +313,14 @@ function addButtons() {
 function addDatePicker(data) {
     var dateContainer = document.createElement("div");
     dateContainer.style.position = "absolute";
-    dateContainer.style.top = "20px";
-    dateContainer.style.right = "1000px";
+    dateContainer.style.top = "8px";
+    dateContainer.style.left = "600px";
 
     // 添加顯示文字
-    var label = document.createElement("p");
-    label.textContent = "選擇日期：";
-    label.style.margin = "0 0 5px 0"; // 添加一些底部邊距
-    dateContainer.appendChild(label);
+    // var label = document.createElement("p");
+    // label.textContent = "選擇日期：";
+    // label.style.margin = "0 0 5px 0"; // 添加一些底部邊距
+    // dateContainer.appendChild(label);
 
     var datePicker = document.createElement("input");
     datePicker.type = "date";
@@ -348,14 +355,14 @@ function addDatePicker(data) {
 function addHourPicker() {
     var hourContainer = document.createElement("div");
     hourContainer.style.position = "absolute";
-    hourContainer.style.top = "20px";
-    hourContainer.style.right = "900px";
+    hourContainer.style.top = "50px";
+    hourContainer.style.left = "600px";
 
-    // 添加顯示文字
-    var label = document.createElement("p");
-    label.textContent = "選擇時刻: ";
-    label.style.margin = "0 0 5px 0"; // 添加一些底部邊距
-    hourContainer.appendChild(label);
+    // // 添加顯示文字
+    // var label = document.createElement("p");
+    // label.textContent = "選擇時刻: ";
+    // label.style.margin = "0 0 5px 0"; // 添加一些底部邊距
+    // hourContainer.appendChild(label);
 
     var hourPicker = document.createElement("select");
     hourPicker.id = "hour-picker";
@@ -587,6 +594,28 @@ function getValueByStationName(stationName) {
     } else {
         return 10
     }
+}
+
+function updateSelector() {
+    calendarDiv.selectAll("input").remove();
+    var updated = false;
+    var datepicker = calendarDiv.append("input")
+        .attr("id", "datepicker")
+        .attr("class","date-picker")
+
+    $( "#datepicker" ).datepicker({
+        dateFormat: "yy-mm-dd",
+        defaultDate : new Date(2023, 10, 30),
+        changeMonth: true, changeYear: true,
+        minDate: new Date(2017, 0, 1), maxDate: new Date(2023, 10, 30),
+        onSelect: function(selectedDate) {
+            console.log("選取的date是: ", selectedDate)
+            updated = true
+            
+    }})
+
+    $("#datepicker").val("2023-11-30");
+    // if(!updated) updateChart(data, selctedStation);
 }
 function clearSvgElements() {
     var svg = document.getElementById("map");

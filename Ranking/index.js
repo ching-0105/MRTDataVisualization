@@ -32,16 +32,26 @@ Promise.all([
 
   // set the dimensions and margins of the graph
   const margin = {top: 20, right: 30, bottom: 40, left: 130},
-  chartWidth = 960 - margin.left - margin.right,
-  chartHeight = 400 - margin.top - margin.bottom;
+  titleHeight = 20,
+  chartWidth = 800 - margin.left - margin.right,
+  chartHeight = 400 - margin.top - margin.bottom - titleHeight;
 
   // append the svg object to the body of the page
   const svg = d3.select(`#${totalContainerId}`)
     .append("svg")
     .attr("width", chartWidth + margin.left + margin.right)
-    .attr("height", chartHeight + margin.top + margin.bottom)
+    .attr("height", chartHeight + margin.top + margin.bottom + titleHeight)
     .append("g")
-    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+    .attr("transform", `translate(${margin.left}, ${margin.top + titleHeight})`);
+
+  // Add a title to the chart
+  svg.append("text")
+    .attr("x", chartWidth / 2)   // Adjust the x-coordinate as needed
+    .attr("y", 0)          // Adjust the y-coordinate as needed
+    .attr("text-anchor", "middle")  // Center the text
+    .style("font-size", "18px")     // Adjust font size as needed
+    .style("font-weight", "bold")   // Optionally, set font weight
+    .text("站點間流量排名");
 
   // Add X axis
   const x = d3.scaleLinear()
@@ -119,14 +129,14 @@ Promise.all([
     uRect.attr("class", "rankBar")
       .on("mouseover", function(event, d) {
         // console.log(d);
-        tooltip.html(`Station ${d.enter_station} to ${d.leave_station}, Sum counts: ${d.sum_counts}`).style("visibility", "visible");
+        tooltip.html(`${d.enter_station} 到 ${d.leave_station}, 人數:${d.sum_counts}`).style("visibility", "visible");
 
         d3.selectAll(".rankBar").style("opacity", .2);
         d3.select(this)
           .style("stroke", "black")
           .style("opacity", 1);
       })
-      .on("mousemove", function(){
+      .on("mousemove", function(event, d){
         tooltip
           .style("top", (event.pageY-10)+"px")
           .style("left",(event.pageX+10)+"px");
@@ -169,6 +179,7 @@ Promise.all([
     { value: "month", text: "month" },
   ];
 
+
   function addPicker(containerId, type) {
     // 先清除已經存在的日期選擇器
     removeExistingPicker();
@@ -206,6 +217,19 @@ Promise.all([
     // document.body.appendChild(PickerContainer);
     select_value = datePicker.value;
     data_filter(mergedData, select_value, ranking_num);
+
+
+    // --------------------------------
+    // var datepicker = document.createElement("input");
+    // datepicker.dateFormat = "yy-mm-dd" ;
+    // datepicker.defaultDate = new Date(2023, 10, 30);
+    // datepicker.changeMonth = true;
+    // datepicker.changeYear = true;
+    // datepicker.minDate = new Date(2017, 0, 1);
+    // datepicker.maxDate = new Date(2023, 10, 30);
+    // datepicker.value = "2023-11-30";
+    
+    // container.appendChild(datepicker);
   }
 
   // 清除已經存在的日期選擇器
