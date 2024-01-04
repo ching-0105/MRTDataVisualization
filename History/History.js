@@ -1,5 +1,6 @@
+// import {get_station_name } from "../Map/map";
 var selctedStation = '三民高中';
-function HistoryWindow(selctedStation){
+export function HistoryWindow(selctedStation , data){
     
     var containerDiv = d3.select("#History_dataviz");
     containerDiv.style("width", "800px");
@@ -45,17 +46,21 @@ function HistoryWindow(selctedStation){
 
     console.log("get data")
 
-    d3.csv("../Dataset/bigdata.csv").then(function (data) {
-        // 將 DateTime 轉換為 JavaScript Date 格式
-        data.forEach(function (d) {
-            d.DateTime = new Date(d.DateTime);
-        });
+    // d3.csv("../Dataset/bigdata.csv").then(function (data) {
+    //     // 將 DateTime 轉換為 JavaScript Date 格式
+    //     data.forEach(function (d) {
+    //         d.DateTime = new Date(d.DateTime);
+    //     });
     
-        console.log("get data done")
-        confirmButton.on("click", function () {
-            updateChart(data, selctedStation);
-        });
+    //     console.log("get data done")
+    //     confirmButton.on("click", function () {
+    //         updateChart(data, selctedStation);
+    //     });
 
+    // });
+
+    confirmButton.on("click", function () {
+        updateChart(data, selctedStation);
     });
     
     function createDropdown() {
@@ -500,4 +505,4 @@ function HistoryWindow(selctedStation){
     }    
 }
 
-HistoryWindow(selctedStation)
+// HistoryWindow(selctedStation)
