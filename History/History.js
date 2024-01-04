@@ -45,7 +45,7 @@ function HistoryWindow(selctedStation){
 
     console.log("get data")
 
-    d3.csv("bigdata.csv").then(function (data) {
+    d3.csv("../Dataset/bigdata.csv").then(function (data) {
         // 將 DateTime 轉換為 JavaScript Date 格式
         data.forEach(function (d) {
             d.DateTime = new Date(d.DateTime);
