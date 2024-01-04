@@ -54,7 +54,9 @@ export function HistoryWindow(selctedStation,data){
                 mode = selectedValue;
                 updateSelector(selectedValue);
             })
-            .style("margin", "10px");
+            .style("margin-top", "10px")
+            .style("margin-left", "10px")
+            .style("padding", "5px");
 
         
 
@@ -70,7 +72,10 @@ export function HistoryWindow(selctedStation,data){
             var datepicker = calendarDiv.append("input")
                 .attr("id", "datepicker")
                 .attr("class","date-picker")
-                .style("margin", "10px");
+                .style("margin-left", "10px")
+                .style("width", "80px")
+                .style("text-align", "center")  // 將文字置中顯示
+                .style("padding", "5px");
 
             $( "#datepicker" ).datepicker({
                 dateFormat: "yy-mm-dd",
@@ -101,7 +106,11 @@ export function HistoryWindow(selctedStation,data){
             var monthpicker = calendarDiv.append("input")
                 .attr("id", "monthpicker")
                 .attr("class","month-picker")
-                .style("margin", "10px");
+                .style("margin-left", "10px")
+                .style("width", "80px")
+                .style("text-align", "center")  // 將文字置中顯示
+                .style("padding", "5px");
+
             $('#monthpicker').MonthPicker({ 
                 Button: false,
                 SelectedMonth: '2023-11',
@@ -118,8 +127,11 @@ export function HistoryWindow(selctedStation,data){
             console.log("113")
             var yearpicker = calendarDiv.append("input")
                 .attr("id", "yearpicker")
-                .style("margin", "10px");
-            
+                .style("margin-left", "10px")
+                .style("width", "80px")
+                .style("text-align", "center")  // 將文字置中顯示
+                .style("padding", "5px");
+
             $('#yearpicker').yearpicker({
                 year: 2023, // 選擇的初始年份
                 startYear: 2017, // 起始年份
