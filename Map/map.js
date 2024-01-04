@@ -56,6 +56,7 @@ d3.csv("../Dataset/bigdata.csv").then(function(dataset) {
     addButtons();
     addDatePicker(data);
     addHourPicker();
+    HistoryWindow("台北車站", data_for_history)
 });
 
  // create tooltip element  
