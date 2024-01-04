@@ -5,10 +5,13 @@ import { get_orange_line2_stations } from './mrt_position.js';
 import { get_green_line_stations } from './mrt_position.js';
 import { get_yellow_line_stations } from './mrt_position.js';
 import { get_brown_line_stations } from './mrt_position.js';
+import { HistoryWindow } from '../History/History.js';
 var filtered_date_data, filtered_hour_data
 var red_line, blue_line, orange_line1, orange_line2, green_line, yellow_line, brown_line
+var cur_hour, clicked_station
+var data_for_history
 const svg = d3.select("#map").append("svg")
-    .attr("width", 1500)
+    .attr("width", 1000)
     .attr("height", 1500);
 
 d3.csv("../Dataset/bigdata.csv").then(function(dataset) {
@@ -19,6 +22,19 @@ d3.csv("../Dataset/bigdata.csv").then(function(dataset) {
             "Value": (+d['EnterNum'] + +d['LeaveNum'])
         }
     })
+
+    data_for_history = dataset.map(d => {
+        return {
+            "DateTime": new Date(d['DateTime']),
+            "EnterNum": d['EnterNum'],
+            "LeaveNum": d['LeaveNum'],
+            "Station": d['Station']
+        }
+    })
+    // var data_for_history = JSON.parse(JSON.stringify(dataset));
+    // data_for_history.forEach(function (d) {
+    //     d.DateTime = new Date(d.DateTime);
+    // });
 
     red_line = get_red_line_stations()
     blue_line = get_blue_line_stations()
@@ -38,6 +54,19 @@ d3.csv("../Dataset/bigdata.csv").then(function(dataset) {
     addDatePicker(data);
     addHourPicker();
 });
+
+ // create tooltip element  
+ const tooltip = d3.select("body")
+ .append("div")
+ .attr("class","d3-tooltip")
+ .style("position", "absolute")
+ .style("z-index", "10")
+ .style("visibility", "hidden")
+ .style("padding", "15px")
+ .style("background", "rgba(0,0,0,0.6)")
+ .style("border-radius", "5px")
+ .style("color", "#fff")
+ .text("a simple tooltip");
 
 function draw_mrt_line(stations, lineId, color, opacity){
     var lineGroup = svg.append("g").attr("id", "line-" + lineId);
@@ -71,17 +100,13 @@ function draw_mrt_line(stations, lineId, color, opacity){
                 .style("opacity", opacity)  
                 .on("click", handleStationClick)
                 .on("mouseover", handleMouseOver)
-                .on("mouseout", handleMouseOut);
-            
-             // 添加隱藏的站名
-            group.append("text")
-            .attr("x", d.x-60)
-            .attr("y", d.y-30)
-            .style("opacity", opacity)  
-            .text(d.name+" 人數:"+d.ori_value)
-            .style("font-size", "30px")
-            .attr("class", "station-label") // 添加類別以便選擇
-            .style("display", "none");  // 初始狀態設置為隱藏
+                .on("mouseout", handleMouseOut)
+                .on("mousemove", function(event, d){
+                    tooltip
+                      .style("top", (event.pageY-10)+"px")
+                      .style("left",(event.pageX+10)+"px");
+                })
+
 
             // 添加站名
             addMultiLineText(group, d.x, d.y, d.name);
@@ -89,8 +114,9 @@ function draw_mrt_line(stations, lineId, color, opacity){
 
     // 點擊站點時觸發的函數
     function handleStationClick(event, d) {
-        // 您可以在這裡實作您的功能
-        console.log("站點被點擊: ", d);
+        // clicked_station = d.name
+        clearHistory();
+        HistoryWindow(d.name, data_for_history)
     }
     // 滑鼠懸停時的事件處理函數
     function handleMouseOver(event, d) {
@@ -98,10 +124,9 @@ function draw_mrt_line(stations, lineId, color, opacity){
         .transition()
         .duration(100)
         .attr("r", 50)  // 放大站點
-        .style("fill", "yellow");  // 改變顏色為黃色
 
-        d3.select(this.parentNode).select("text.station-label")
-        .style("display", null);  // 顯示站名
+        tooltip.html(`${d.name} 人數:${d.ori_value}`).style("visibility", "visible");
+        
     }
 
     // 滑鼠移開時的事件處理函數
@@ -110,9 +135,7 @@ function draw_mrt_line(stations, lineId, color, opacity){
         .transition()
         .duration(100)
         .attr("r", d.value)  // 恢復原始大小
-        .style("fill", color);  // 恢復原始顏色
-        d3.select(this.parentNode).select("text.station-label")
-        .style("display", "none");  // 隱藏站名
+        tooltip.html(``).style("visibility", "hidden");
     }
     // 將文字分割成多行的函數
     function addMultiLineText(group, x, y, text) {
@@ -263,6 +286,21 @@ function addButtons() {
      };
     buttonsContainer.appendChild(brown_);
     setting_btn_style(brown_, "#A67B5B")
+
+    var all_ = document.createElement("button");
+    all_.innerHTML = "全線"
+    all_.onclick = function() { 
+        clearSvgElements()
+        draw_mrt_line(red_line, "red", "red",1)
+        draw_mrt_line(blue_line, "blue", "blue", 1)
+        draw_mrt_line(orange_line1, "orange", "orange", 1)
+        draw_mrt_line(orange_line2, "orange2", "orange", 1)
+        draw_mrt_line(green_line, "green", "green", 1)
+        draw_mrt_line(yellow_line, "yellow","#FFD700", 1)
+        draw_mrt_line(brown_line, "brown", "#A67B5B", 1)
+     };
+    buttonsContainer.appendChild(all_);
+    setting_btn_style(all_, "black")
 }
 
 function addDatePicker(data) {
@@ -283,11 +321,24 @@ function addDatePicker(data) {
     datePicker.name = "date";
     datePicker.style.padding = "5px";
 
+    datePicker.min = "2017-01-01";  // 最小月份
+    datePicker.max = "2023-11-30";  // 最大月份
+
+    cur_hour = "all" // defalut
     // 當日期改變時，在控制台中輸出選擇的日期
     datePicker.addEventListener("change", function() {
         console.log("選擇的日期是：", this.value);
         filtered_date_data = filterDataByDate(data, this.value)
-        console.log(filtered_date_data)
+        filtered_hour_data = filterDataByTime(filtered_date_data, cur_hour)
+        processing_data()
+        clearSvgElements()
+        draw_mrt_line(red_line, "red", "red",1)
+        draw_mrt_line(blue_line, "blue", "blue", 1)
+        draw_mrt_line(orange_line1, "orange", "orange", 1)
+        draw_mrt_line(orange_line2, "orange2", "orange", 1)
+        draw_mrt_line(green_line, "green", "green", 1)
+        draw_mrt_line(yellow_line, "yellow","#FFD700", 1)
+        draw_mrt_line(brown_line, "brown", "#A67B5B", 1)
     });
 
     dateContainer.appendChild(datePicker);
@@ -328,8 +379,8 @@ function addHourPicker() {
     // 當選擇的小時改變時，在控制台中輸出選擇的小時
     hourPicker.addEventListener("change", function() {
         console.log("選擇的小時是：", this.value);
+        cur_hour = this.value
         filtered_hour_data = filterDataByTime(filtered_date_data, this.value)
-        console.log(filtered_hour_data)
         processing_data()
         clearSvgElements()
         draw_mrt_line(red_line, "red", "red",1)
@@ -539,9 +590,22 @@ function getValueByStationName(stationName) {
 }
 function clearSvgElements() {
     var svg = document.getElementById("map");
+    
     var elementsToRemove = svg.querySelectorAll("circle, line, text");
 
     elementsToRemove.forEach(function(element) {
         element.remove();
     });
+}
+
+function clearHistory() {
+    var svgHistory = document.getElementById("History_dataviz");
+    if(svgHistory){
+        svgHistory.innerHTML = ''
+    }
+
+}
+
+export function get_station_name(){
+    return clicked_station
 }
