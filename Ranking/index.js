@@ -1,12 +1,16 @@
 const file_day = "../Dataset/ranking_day50.csv";
 const file_month = "../Dataset/ranking_month50.csv";
 const totalContainerId = "my_dataviz";
+const chartContainerId = "ranking-input-container";
 
 // Parse the Data
 Promise.all([
   d3.csv(file_day),
   d3.csv(file_month),
 ]).then( function(dataArray) {
+  // 創建輸入容器
+  // var InputContainer = document.createElement("div");
+
   // dataArray是一個包含三個資料集的陣列，分別對應三個 CSV 檔案的資料
   const csv_day = dataArray[0];
   const csv_month = dataArray[1];
@@ -32,9 +36,9 @@ Promise.all([
 
   // set the dimensions and margins of the graph
   const margin = {top: 20, right: 30, bottom: 40, left: 130},
-  titleHeight = 20,
+  titleHeight = 40,
   chartWidth = 800 - margin.left - margin.right,
-  chartHeight = 400 - margin.top - margin.bottom - titleHeight;
+  chartHeight = 500 - margin.top - margin.bottom - titleHeight;
 
   // append the svg object to the body of the page
   const svg = d3.select(`#${totalContainerId}`)
@@ -47,7 +51,7 @@ Promise.all([
   // Add a title to the chart
   svg.append("text")
     .attr("x", chartWidth / 2)   // Adjust the x-coordinate as needed
-    .attr("y", 0)          // Adjust the y-coordinate as needed
+    .attr("y", -20)          // Adjust the y-coordinate as needed
     .attr("text-anchor", "middle")  // Center the text
     .style("font-size", "18px")     // Adjust font size as needed
     .style("font-weight", "bold")   // Optionally, set font weight
@@ -155,6 +159,9 @@ Promise.all([
   
     // 創建 select 元素
     const dropdown = document.createElement("select");
+    dropdown.style.padding = "5px";
+    dropdown.style.marginRight = "6px";
+    dropdown.style.marginLeft = "10px";
   
     // 遍歷選項，並創建 option 元素
     options.forEach(function(option) {
@@ -192,6 +199,7 @@ Promise.all([
     var datePicker = document.createElement("input");
     datePicker.type = type;
     datePicker.id = "picker";
+    datePicker.style.marginRight = "6px";
     
     // datePicker.name = "date";
     datePicker.style.padding = "5px";
@@ -217,19 +225,6 @@ Promise.all([
     // document.body.appendChild(PickerContainer);
     select_value = datePicker.value;
     data_filter(mergedData, select_value, ranking_num);
-
-
-    // --------------------------------
-    // var datepicker = document.createElement("input");
-    // datepicker.dateFormat = "yy-mm-dd" ;
-    // datepicker.defaultDate = new Date(2023, 10, 30);
-    // datepicker.changeMonth = true;
-    // datepicker.changeYear = true;
-    // datepicker.minDate = new Date(2017, 0, 1);
-    // datepicker.maxDate = new Date(2023, 10, 30);
-    // datepicker.value = "2023-11-30";
-    
-    // container.appendChild(datepicker);
   }
 
   // 清除已經存在的日期選擇器
@@ -245,6 +240,11 @@ Promise.all([
     // 選擇容器元素
     const container = d3.select(`#${containerId}`);
 
+     // 加入文字說明
+    container.append("span")
+    .text("顯示名次:")
+    .style("margin-right", "8px"); // 調整文字和輸入框之間的間距
+
     // 創建輸入框
     const input = container.append("input")
       .attr("type", "number")
@@ -253,6 +253,10 @@ Promise.all([
       .attr("value", defaultValue)
       .attr("id", "nUni");
 
+    // 設定輸入框樣式
+    input.style("padding", "5px")  // 調整內部填充
+      .style("width", "35px")       // 調整寬度
+      .style("font-size", "14px");    // 調整字體大小
     // 在這裡可以添加額外的邏輯，如事件監聽器等
     input.on("change", function() {
       console.log("數字變更為：", this.value);
@@ -261,14 +265,15 @@ Promise.all([
     });
   }
 
-  // 使用範例
-  createNumberInput(totalContainerId, 1, 50, 10);
   
   // 在容器 ID 為 "dropdown-container" 的地方創建下拉式選單
-  createDropdownMenu(totalContainerId, dropdownOptions);
+  createDropdownMenu(chartContainerId, dropdownOptions);
 
   data_filter(mergedData, select_value, ranking_num);
-  addPicker(totalContainerId, "date");
+  addPicker(chartContainerId, "date");
+
+  createNumberInput(chartContainerId, 1, 50, 10);
+
 })
 
 

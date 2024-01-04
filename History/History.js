@@ -1,7 +1,7 @@
 // var selctedStation = '三民高中';
 export function HistoryWindow(selctedStation,data){
     var containerDiv = d3.select("#History_dataviz");
-        containerDiv.style("width", "800px");
+        containerDiv.style("width", "900px");
         containerDiv.style("height", "500px");
 
     // console.log("get data")
@@ -25,14 +25,14 @@ export function HistoryWindow(selctedStation,data){
 
     // 第三個 div 放繪製的折線圖
     var chartDiv = containerDiv.append("div").attr("id", "chartDiv");
-    var margin = { top: 20, right: 120, bottom: 30, left: 50 };
+    var margin = { top: 20, right: 100, bottom: 30, left: 80 };
     var svgWidth = 800 - margin.left - margin.right;
-    var svgHeight = 400 - margin.top - margin.bottom;
+    var svgHeight = 500 - margin.top - margin.bottom;
 
     // Create the SVG container
     var chartSvg = chartDiv.append("svg")
         .attr("width", 800)
-        .attr("height", 400)
+        .attr("height", 500)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -53,7 +53,10 @@ export function HistoryWindow(selctedStation,data){
                 console.log("所選的time scale是:" + selectedValue);
                 mode = selectedValue;
                 updateSelector(selectedValue);
-            });
+            })
+            .style("margin", "10px");
+
+        
 
         timeScaleDropdown.selectAll("option")
             .data(timeScales)
@@ -67,6 +70,7 @@ export function HistoryWindow(selctedStation,data){
             var datepicker = calendarDiv.append("input")
                 .attr("id", "datepicker")
                 .attr("class","date-picker")
+                .style("margin", "10px");
 
             $( "#datepicker" ).datepicker({
                 dateFormat: "yy-mm-dd",
@@ -97,6 +101,7 @@ export function HistoryWindow(selctedStation,data){
             var monthpicker = calendarDiv.append("input")
                 .attr("id", "monthpicker")
                 .attr("class","month-picker")
+                .style("margin", "10px");
             $('#monthpicker').MonthPicker({ 
                 Button: false,
                 SelectedMonth: '2023-11',
@@ -113,6 +118,7 @@ export function HistoryWindow(selctedStation,data){
             console.log("113")
             var yearpicker = calendarDiv.append("input")
                 .attr("id", "yearpicker")
+                .style("margin", "10px");
             
             $('#yearpicker').yearpicker({
                 year: 2023, // 選擇的初始年份
@@ -192,44 +198,11 @@ export function HistoryWindow(selctedStation,data){
             renderLineChartYear(getMonthSum(filteredData), selctedStation)
         }
     }
-    // // create a tooltip
-    // var Tooltip = d3.select("body")
-    //     .append("div")
-    //     .style("position", "absolute")
-    //     .style("z-index", "10")
-    //     .style("visibility", "hidden")
-    //     .attr("class", "tooltip")
-    //     .style("background-color", "white")
-    //     .style("border", "solid")
-    //     .style("border-width", "2px")
-    //     .style("border-radius", "5px")
-    //     .style("padding", "5px")
-    // //Three function that change the tooltip when user hover / move / leave a cell
-    // var mouseoverE = function(event,d) {
-    //     console.log('mouseoverE')
-    //     Tooltip
-    //         .html("進站人數: " + d.EnterNum).style("visibility", "visible")
-    //         .style("opacity", 1)
-    // }
-    // var mouseoverL = function(event,d) {
-    //     Tooltip
-    //         .html("出站人數: " + d.LeaveNum).style("visibility", "visible")
-    //         .style("opacity", 1)
-    // }
-    // var mousemove = function(event,d) {
-    //     Tooltip
-    //         .style("left", `${event.pageX+10}px`)
-    //         .style("top", `${event.pageY}px`)
-    // }
-    // var mouseleave = function(event,d) {
-    //     Tooltip
-    //         .style("opacity", 0)
-    //         .html(``).style("visibility", "hidden");
-    // }
+
 
     function createLegend(selctedStation) {
         var legend = chartSvg.append("g")
-            .attr("transform", "translate(" + (svgWidth+margin.left) + "," + margin.top + ")");
+            .attr("transform", "translate(" + (svgWidth+margin.left+20) + "," + margin.top + ")");
         
         legend.append("text")
             .attr("x", 0)

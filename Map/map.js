@@ -117,20 +117,20 @@ function draw_mrt_line(stations, lineId, color, opacity){
 
     // 點擊站點時觸發的函數
     function handleStationClick(event, d) {
-        d3.select(this)
-        .transition()
-        .duration(100)
-        .attr("r", d.value)  // 恢復原始大小
+        // d3.select(this)
+        // .transition()
+        // .duration(100)
+        // .attr("r", d.value)  // 恢復原始大小
         // clicked_station = d.name
         clearHistory();
         HistoryWindow(d.name, data_for_history)
     }
     // 滑鼠懸停時的事件處理函數
     function handleMouseOver(event, d) {
-        d3.select(this)
-        .transition()
-        .duration(100)
-        .attr("r", 50)  // 放大站點
+        // d3.select(this)
+        // .transition()
+        // .duration(100)
+        // .attr("r", 50)  // 放大站點
 
         tooltip.html(`${d.name} 人數:${d.ori_value}`).style("visibility", "visible");
         
@@ -138,10 +138,10 @@ function draw_mrt_line(stations, lineId, color, opacity){
 
     // 滑鼠移開時的事件處理函數
     function handleMouseOut(event, d) {
-        d3.select(this)
-        .transition()
-        .duration(100)
-        .attr("r", d.value)  // 恢復原始大小
+        // d3.select(this)
+        // .transition()
+        // .duration(100)
+        // .attr("r", d.value)  // 恢復原始大小
         tooltip.html(``).style("visibility", "hidden");
     }
     // 將文字分割成多行的函數
